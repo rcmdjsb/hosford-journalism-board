@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hosford Journalism • Newsroom Beat Board</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#061a22] text-slate-100 min-h-screen flex flex-col justify-between font-sans">
+
+  <!-- Header -->
+  <header id="mainHeader" class="border-b border-[#1f7a99]/40 bg-[#092631]/95 backdrop-blur sticky top-0 z-20 shadow-lg">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3.5">
+        <img src="logo.jpeg" alt="Hosford Husky Logo" class="w-12 h-12 rounded-xl object-cover border-2 border-[#7cc9e8] shadow-md bg-[#1a7a9a]" />
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-widest text-[#7cc9e8]">Hosford Middle School • Journalism</span>
+          <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white leading-tight">Newsroom Daily Beat Board</h1>
+        </div>
+      </div>
+
+      <!-- Mode Switcher Tabs -->
+      <div class="flex items-center gap-2 bg-[#061a22] p-1.5 rounded-xl border border-[#1f7a99]/50">
+        <button id="btnStudentTab" onclick="switchView('student')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[#1f7a99] text-white transition">
+          ✍️ Student Check-In
+        </button>
+        <button id="btnDisplayTab" onclick="switchView('display')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-slate-300 hover:text-white transition">
+          📺 Live Classroom Display
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl w-full mx-auto px-4 py-6 flex-grow">
+
+    <!-- ================= VIEW 1: STUDENT CHECK-IN FORM ================= -->
+    <section id="studentView" class="max-w-2xl mx-auto space-y-6">
+      <div class="bg-[#092631] border border-[#1f7a99]/50 rounded-2xl p-6 shadow-xl space-y-6">
+        <div class="border-b border-[#1f7a99]/30 pb-4">
+          <h2 class="text-xl font-extrabold text-white">Daily Newsroom Assignment Check-In</h2>
+          <p class="text-sm text-slate-300 mt-1">Log what you are working on today. Your update will appear immediately on the classroom screen.</p>
+        </div>
+
+        <!-- Student Name -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-[#7cc9e8] mb-1.5">Your Name (First + Last Name)</label>
+          <input id="studentName" type="text" placeholder="e.g., Alex Rivera" class="w-full rounded-xl bg-[#061a22] border border-[#1f7a99]/60 px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#7cc9e8]" />
+        </div>
+
+        <!-- Category Selection -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-[#7cc9e8] mb-2">1. Select What You Are Working On Today</label>
+          <div id="categoryGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+
+        <!-- Specific Details -->
+        <div>
+          <label id="detailsLabel" class="block text-xs font-semibold uppercase tracking-wider text-[#7cc9e8] mb-1.5">2. Assignment Details (Page #, Video Topic, Article, etc.)</label>
+          <textarea id="workDetails" rows="3" placeholder="e.g., Editing Fall Sports spread pages 14–15, or filming interview with Ms. Lee..." class="w-full rounded-xl bg-[#061a22] border border-[#1f7a99]/60 p-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-[#7cc9e8]"></textarea>
+        </div>
+
+        <button id="submitBtn" onclick="submitCheckIn()" class="w-full py-3.5 rounded-xl bg-[#1f7a99] hover:bg-[#2793b8] font-bold text-white shadow-lg border border-[#7cc9e8]/30 transition">
+          Post to Newsroom Board ✓
+        </button>
+
+        <!-- Confirmation Banner -->
+        <div id="confirmBanner" class="hidden rounded-xl bg-emerald-950/50 border border-emerald-400/60 p-4 text-center space-y-2">
+          <div class="text-emerald-300 font-extrabold text-base">✓ Posted to Today's Newsroom Board!</div>
+          <p class="text-xs text-slate-200">Need to switch tasks later in class? Just pick a new category above and submit again to update your status.</p>
+          <button onclick="switchView('display')" class="mt-1 inline-block text-xs font-bold text-[#7cc9e8] underline">View Live Classroom Board →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 2: LIVE CLASSROOM DISPLAY ================= -->
+    <section id="displayView" class="hidden space-y-5">
+      <!-- Status Bar -->
+      <div class="bg-[#092631] border border-[#1f7a99]/50 rounded-2xl px-5 py-4 flex flex-wrap items-center justify-between gap-4 shadow-lg">
+        <div class="flex items-center gap-3">
+          <span class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+          </span>
+          <div>
+            <h2 id="boardDateHeader" class="text-base sm:text-lg font-extrabold text-white">Today's Newsroom Lineup</h2>
+            <p id="lastSyncText" class="text-xs text-slate-400">Syncing live with Google Sheets...</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="bg-[#061a22] border border-[#7cc9e8]/40 rounded-xl px-4 py-1.5 text-center">
+            <span class="text-[10px] font-bold uppercase text-[#7cc9e8] block">Checked In</span>
+            <span id="totalCountBadge" class="text-lg font-black text-white">0</span>
+          </div>
+          <button onclick="fetchBoardData()" class="px-3.5 py-2.5 rounded-xl bg-[#061a22] hover:bg-[#1f7a99]/30 border border-[#1f7a99]/60 text-xs font-bold text-[#7cc9e8] transition">
+            ↻ Refresh
+          </button>
+          <button id="tvModeBtn" onclick="toggleTvMode()" class="px-3.5 py-2.5 rounded-xl bg-[#1f7a99] hover:bg-[#2793b8] text-xs font-bold text-white transition">
+            ⛶ TV Mode
+          </button>
+        </div>
+      </div>
+
+      <!-- 5 Category Columns / Lanes -->
+      <div id="boardLanesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+  </main>
+
+  <footer id="mainFooter" class="text-center text-xs text-slate-400 py-4 border-t border-[#1f7a99]/30 bg-[#092631]/60">
+    Hosford Middle School Journalism • Husky Newsroom Tracker
+  </footer>
+
+  <script>
+    // =========================================================================
+    // 1. CONFIGURATION (PASTE YOUR GOOGLE APPS SCRIPT /exec URL HERE)
+    // =========================================================================
+    const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwkZFo-BhGj8KkdKzvkUBxsypTCcjlV0d88p6qrEWEg8yxuKK2U7s-j10JFyJuTgBgF/exec';
+
+    const CATEGORIES = [
+      {
+        id: 'Announcements',
+        icon: '🎙️',
+        colorBorder: 'border-sky-400/50',
+        badgeBg: 'bg-sky-500/20 text-sky-300 border-sky-400/40',
+        placeholder: 'e.g., Writing script for Friday livestream, anchoring sports, running camera...'
+      },
+      {
+        id: 'Student Website',
+        icon: '🌐',
+        colorBorder: 'border-teal-400/50',
+        badgeBg: 'bg-teal-500/20 text-teal-300 border-teal-400/40',
+        placeholder: 'e.g., Article headline, interviewing club advisor, editing photos for homepage...'
+      },
+      {
+        id: 'Yearbook',
+        icon: '📸',
+        colorBorder: 'border-amber-400/50',
+        badgeBg: 'bg-amber-500/20 text-amber-300 border-amber-400/40',
+        placeholder: 'e.g., Page numbers (pp. 24–25), 8th grade superlatives, candid photo sorting...'
+      },
+      {
+        id: 'Video Project',
+        icon: '🎬',
+        colorBorder: 'border-rose-400/50',
+        badgeBg: 'bg-rose-500/20 text-rose-300 border-rose-400/40',
+        placeholder: 'e.g., Video essay topic, storyboard, B-roll filming, editing in WeVideo/CapCut...'
+      },
+      {
+        id: 'Other Assignment',
+        icon: '📝',
+        colorBorder: 'border-purple-400/50',
+        badgeBg: 'bg-purple-500/20 text-purple-300 border-purple-400/40',
+        placeholder: 'e.g., Catching up on missing work, peer editing, teacher-assigned task...'
+      }
+    ];
+
+    // =========================================================================
+    // 2. STATE & INITIALIZATION
+    // =========================================================================
+    let selectedCategory = null;
+    let pollInterval = null;
+    let isTvMode = false;
+
+    // Remember student's name on their Chromebook
+    const savedName = localStorage.getItem('hosford_journalism_name');
+    if (savedName) {
+      document.getElementById('studentName').value = savedName;
+    }
+
+    function buildCategoryButtons() {
+      const grid = document.getElementById('categoryGrid');
+      CATEGORIES.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = `cat-btn-${cat.id}`;
+        btn.className = 'text-left p-4 rounded-xl border-2 border-[#1f7a99]/40 bg-[#061a22] hover:border-[#7cc9e8] transition flex items-center gap-3';
+        btn.innerHTML = `
+          <span class="text-2xl">${cat.icon}</span>
+          <span class="font-bold text-white text-sm sm:text-base">${cat.id}</span>
+        `;
+        btn.onclick = () => {
+          selectedCategory = cat;
+          document.getElementById('workDetails').placeholder = cat.placeholder;
+          CATEGORIES.forEach(c => {
+            const el = document.getElementById(`cat-btn-${c.id}`);
+            el.className = c.id === cat.id
+              ? 'text-left p-4 rounded-xl border-2 border-[#7cc9e8] bg-[#1f7a99]/30 shadow-lg transition flex items-center gap-3'
+              : 'text-left p-4 rounded-xl border-2 border-[#1f7a99]/40 bg-[#061a22] hover:border-[#7cc9e8] transition flex items-center gap-3';
+          });
+        };
+        grid.appendChild(btn);
+      });
+    }
+
+    // =========================================================================
+    // 3. VIEW SWITCHING & TV FULLSCREEN MODE
+    // =========================================================================
+    function switchView(view) {
+      const isStudent = view === 'student';
+      document.getElementById('studentView').classList.toggle('hidden', !isStudent);
+      document.getElementById('displayView').classList.toggle('hidden', isStudent);
+
+      document.getElementById('btnStudentTab').className = isStudent
+        ? 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[#1f7a99] text-white transition'
+        : 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-slate-300 hover:text-white transition';
+      document.getElementById('btnDisplayTab').className = !isStudent
+        ? 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[#1f7a99] text-white transition'
+        : 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-slate-300 hover:text-white transition';
+
+      if (!isStudent) {
+        fetchBoardData();
+        if (!pollInterval) {
+          pollInterval = setInterval(fetchBoardData, 10000); // Auto-refresh every 10s
+        }
+      } else if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    }
+
+    function toggleTvMode() {
+      isTvMode = !isTvMode;
+      document.getElementById('mainHeader').classList.toggle('hidden', isTvMode);
+      document.getElementById('mainFooter').classList.toggle('hidden', isTvMode);
+      document.getElementById('tvModeBtn').textContent = isTvMode ? '✕ Exit TV Mode' : '⛶ TV Mode';
+    }
+
+    // =========================================================================
+    // 4. SUBMIT CHECK-IN TO GOOGLE SHEETS
+    // =========================================================================
+    async function submitCheckIn() {
+      const name = document.getElementById('studentName').value.trim();
+      const details = document.getElementById('workDetails').value.trim();
+
+      if (!name) return alert('Please enter your First and Last Name.');
+      if (!selectedCategory) return alert('Please select what you are working on today.');
+      if (!details) return alert('Please add specific details (page #, topic, or assignment).');
+
+      localStorage.setItem('hosford_journalism_name', name);
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Posting to Board...';
+
+      const payload = {
+        studentName: name,
+        category: selectedCategory.id,
+        details: details
+      };
+
+      try {
+        await fetch(SHEET_WEBHOOK_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.error('Error submitting:', err);
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Post to Newsroom Board ✓';
+      document.getElementById('confirmBanner').classList.remove('hidden');
+    }
+
+    // =========================================================================
+    // 5. LIVE CLASSROOM DISPLAY RENDERER
+    // =========================================================================
+    async function fetchBoardData() {
+      if (SHEET_WEBHOOK_URL.includes('PASTE_YOUR')) return;
+      try {
+        const res = await fetch(SHEET_WEBHOOK_URL);
+        const data = await res.json();
+        renderBoard(data.date, data.entries || []);
+        const nowTime = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+        document.getElementById('lastSyncText').textContent = `Live • Last updated at ${nowTime}`;
+      } catch (err) {
+        console.error('Fetch board error:', err);
+        document.getElementById('lastSyncText').textContent = 'Retrying connection...';
+      }
+    }
+
+    function renderBoard(dateStr, entries) {
+      document.getElementById('boardDateHeader').textContent = `Today's Newsroom Lineup • ${dateStr}`;
+      document.getElementById('totalCountBadge').textContent = entries.length;
+
+      const grid = document.getElementById('boardLanesGrid');
+      grid.innerHTML = '';
+
+      CATEGORIES.forEach(cat => {
+        const matching = entries.filter(e => e.category === cat.id);
+
+        const lane = document.createElement('div');
+        lane.className = `bg-[#092631] border-2 ${cat.colorBorder} rounded-2xl p-4 shadow-xl flex flex-col space-y-3`;
+
+        const cardsHtml = matching.length > 0
+          ? matching.map(item => `
+              <div class="bg-[#061a22] border border-[#1f7a99]/40 rounded-xl p-3.5 space-y-1">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-extrabold text-white text-base">${escapeHtml(item.studentName)}</span>
+                  <span class="text-[11px] font-semibold text-slate-400">${escapeHtml(item.time)}</span>
+                </div>
+                <p class="text-sm text-slate-200 leading-snug">${escapeHtml(item.details)}</p>
+              </div>
+            `).join('')
+          : `<div class="text-xs text-slate-500 italic py-4 text-center border border-dashed border-slate-800 rounded-xl">No reporters checked in here yet</div>`;
+
+        lane.innerHTML = `
+          <div class="flex items-center justify-between border-b border-[#1f7a99]/30 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">${cat.icon}</span>
+              <h3 class="font-extrabold text-white text-base">${cat.id}</h3>
+            </div>
+            <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full border ${cat.badgeBg}">${matching.length}</span>
+          </div>
+          <div class="space-y-2.5 flex-grow">
+            ${cardsHtml}
+          </div>
+        `;
+        grid.appendChild(lane);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Initialize
+    buildCategoryButtons();
+    renderBoard(new Date().toLocaleDateString(), []);
+  </script>
+</body>
+</html>
