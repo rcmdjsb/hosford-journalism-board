@@ -116,7 +116,7 @@
     // =========================================================================
     // 1. CONFIGURATION (PASTE YOUR GOOGLE APPS SCRIPT /exec URL HERE)
     // =========================================================================
-    const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxWElMw1bThZisNkx55Hb_ifDZZooVJ1k43FqEwx42RrjT505nkW9AWeaPU-xDkqkPK/exec';
+    const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzgn9f5C7UCmdUu6-ZUZ9QemYrlT3yW3w_ZUsLIQIi6iIIS5kfgJcGZoVarWenrAh7N/exec';
 
     const CATEGORIES = [
       {
@@ -163,7 +163,6 @@
     let pollInterval = null;
     let isTvMode = false;
 
-    // Remember student's name on their Chromebook
     const savedName = localStorage.getItem('hosford_journalism_name');
     if (savedName) {
       document.getElementById('studentName').value = savedName;
@@ -212,7 +211,7 @@
       if (!isStudent) {
         fetchBoardData();
         if (!pollInterval) {
-          pollInterval = setInterval(fetchBoardData, 10000); // Auto-refresh every 10s
+          pollInterval = setInterval(fetchBoardData, 10000);
         }
       } else if (pollInterval) {
         clearInterval(pollInterval);
@@ -267,20 +266,26 @@
     }
 
     // =========================================================================
-    // 5. LIVE CLASSROOM DISPLAY RENDERER
+    // 5. LIVE CLASSROOM DISPLAY RENDERER (JSONP - CORS-PROOF FOR PPS)
     // =========================================================================
-    async function fetchBoardData() {
+    window.handleBoardCallback = function(data) {
+      renderBoard(data.date, data.entries || []);
+      const nowTime = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      document.getElementById('lastSyncText').textContent = `Live • Last updated at ${nowTime}`;
+    };
+
+    function fetchBoardData() {
       if (SHEET_WEBHOOK_URL.includes('PASTE_YOUR')) return;
-      try {
-        const res = await fetch(SHEET_WEBHOOK_URL);
-        const data = await res.json();
-        renderBoard(data.date, data.entries || []);
-        const nowTime = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
-        document.getElementById('lastSyncText').textContent = `Live • Last updated at ${nowTime}`;
-      } catch (err) {
-        console.error('Fetch board error:', err);
-        document.getElementById('lastSyncText').textContent = 'Retrying connection...';
-      }
+      const oldScript = document.getElementById('jsonp-board-script');
+      if (oldScript) oldScript.remove();
+
+      const script = document.createElement('script');
+      script.id = 'jsonp-board-script';
+      script.src = `${SHEET_WEBHOOK_URL}?callback=handleBoardCallback&t=${Date.now()}`;
+      script.onerror = function() {
+        document.getElementById('lastSyncText').textContent = 'Check Apps Script deployment access (must be Anyone)';
+      };
+      document.body.appendChild(script);
     }
 
     function renderBoard(dateStr, entries) {
